@@ -155,7 +155,7 @@ arma::sp_mat normalize_data_dense(arma::mat& data) {
     }
   }
   
-  arma::uvec idx = find(col_sum > 0);
+  arma::uvec idx = find(col_sum > 0);   // 对于较稠密的数据，直接删掉列全为0的基因
   data = data.cols(idx);
   
   arma::colvec tmp_max = arma::max(data,1);
@@ -173,7 +173,7 @@ arma::sp_mat normalize_data_dense(arma::mat& data) {
 }
 
 // [[Rcpp::export]]
-arma::sp_mat normalize_data_sparse(arma::sp_mat& data) {
+arma::sp_mat normalize_data_sparse(arma::sp_mat& data) {  // 归一化
   arma::rowvec col_sum = zeros<rowvec>(data.n_cols);
   
   for (size_t i = 0; i < data.n_cols; i++)
@@ -187,11 +187,11 @@ arma::sp_mat normalize_data_sparse(arma::sp_mat& data) {
       }
     }
   }
-  
-  arma::uvec idx = find(col_sum == 0);
-  for (size_t i = 0; i < idx.n_elem; i++)
+//   对于稀疏数据，稍微复杂一些
+  arma::uvec idx = find(col_sum == 0);   // 先找到列全为0的列，idx为这些列的索引
+  for (size_t i = 0; i < idx.n_elem; i++)  // 遍历索引中的所有元素
   {
-    data.shed_col(idx(i) - i);
+    data.shed_col(idx(i) - i);   // 可是为什么要这么做呢
   }
   
   
